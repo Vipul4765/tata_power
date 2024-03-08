@@ -3,6 +3,7 @@ import requests
 import urllib.parse
 from io import BytesIO
 from PIL import Image
+from datetime import datetime
 
 
 class DataFetching:
@@ -72,17 +73,24 @@ class DataFetching:
 
     def data_extraction(self,reponse):
         tree = etree.HTML(reponse.content)
-        name = tree.xpath('// span[ @ id = "lblname"] / text()')[0]
-        Date = tree.xpath('// span[ @ id = "lblbillnobilldate"] / text()')[0]
-        due_Date = tree.xpath('// span[ @ id = "lblduedate"] / text()')[0]
-        Bill = tree.xpath('// span[ @ id = "lblexactbill"] / text()')[0]
-        Amount = tree.xpath('// span[ @ id = "lbloutstn"] / text()')[0]
+        name = tree.xpath('//span[@id="lblname"]/text()')[0].replace('.','').strip()
+        bill_no_date_number = tree.xpath('//span[@id="lblbillnobilldate"]/text()')[0]
+        due_date = tree.xpath('//span[@id="lblduedate"]/text()')[0]
+        bill_ = tree.xpath('//span[@id="lblexactbill"]/text()')[0]
+        Amount = tree.xpath('//span[@id="lbloutstn"]/text()')[0]
+        bill_no, bill_date = bill_no_date_number.split('/')
+        bill_no = bill_no.strip()
+        bill_ = bill_.strip()
+        due_date = datetime.strptime(due_date,'%d-%b-%Y')
+        due_date = due_date.strftime("%Y-%m-%d")
         return {
+
             'name':name,
-            'Date':Date,
-            'Due Date': due_Date,
-            'Bill' : Bill,
-            'Amount' : Amount
+            'bill_no':bill_no,
+            'due_date': bill_date,
+            'due_date': due_date,
+            'exact_bill' : bill_,
+            'outstanding_amount' : Amount
         }
 
 
